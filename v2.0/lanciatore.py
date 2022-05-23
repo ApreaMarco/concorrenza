@@ -1,5 +1,31 @@
 from libConvertitore import *
 from time import time
+from sys import argv
+
+
+def validaArgs(args, tipoImplementazione, tipoProduttore, tipoMyPrint):
+    if len(args) != 4:
+        exit(0)
+
+    lstArgs = []
+    for arg in args:
+        try:
+            lstArgs.append(int(arg))
+        except:
+            exit(1)
+
+    if lstArgs[0] >= len(tipoImplementazione):
+        exit(2)
+
+    if lstArgs[1] >= len(tipoProduttore):
+        exit(3)
+
+    if lstArgs[2] >= len(tipoMyPrint):
+        exit(4)
+
+    if lstArgs[3] < 1:
+        exit(5)
+    return lstArgs
 
 
 def selettoreImplementazione(tipoImplementazione, tipoProduttore, numeroLanci, tipoMyPrint):
@@ -72,14 +98,18 @@ def implementazione5(tipoProduttore, numeroLanci, tipoMyPrint):
 
 def main():
     t0 = time()
+    args = argv[1:]  # lista di parametri d'ingresso
     tipoImplementazione = ["sequenziale", "thread", "deamon", "threadJoin", "deamonJoin"]  # Implementazioni disponibili
     tipoProduttore = ["produttore1", "produttore2", "produttore3", "produttore4"]  # Produttori disponibili
     tipoMyPrint = ["sistema", "carattere", "messaggio"]  # Stampe disponibili
 
-    tipoImplementazioneTest = tipoImplementazione[3]  # Tipo di implementazione scelta per il test
-    produttoreTest = tipoProduttore[2]  # Produttore scelto per il test
-    numeroLanci = 10
-    myPrintTest = tipoMyPrint[0]  # Tipo di stampa scelto per il test
+    lstArgs = validaArgs(args, tipoImplementazione, tipoProduttore, tipoMyPrint)
+
+    input("Premi un tasto")
+    tipoImplementazioneTest = tipoImplementazione[lstArgs[0]]  # Tipo di implementazione scelta per il test
+    produttoreTest = tipoProduttore[lstArgs[1]]  # Produttore scelto per il test
+    myPrintTest = tipoMyPrint[lstArgs[2]]  # Tipo di stampa scelto per il test
+    numeroLanci = lstArgs[3]
 
     # QUI IL CODICE SPECIFICO PER L’IMPLEMENTAZIONE SCELTA
     selettoreImplementazione(tipoImplementazioneTest, produttoreTest, numeroLanci, myPrintTest)

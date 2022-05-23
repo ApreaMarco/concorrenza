@@ -3,6 +3,7 @@ from time import time
 
 
 def main():
+    input("Premi un tasto qualsialsi")
     t0 = time()
     tipoProduttore = [produttore1, produttore2, produttore3, produttore4]  # Produttori disponibili
     produttoreTest = tipoProduttore[0]  # Produttore scelto per il test

@@ -53,6 +53,7 @@ def produttore3(numeroLancio, tipoMyPrint):
     finally:
         SemaforoDati.lckDati.release()
 
+    sleep(0.01)  # Forza lo scambio di contesto fra i due semafori, che non sono vincolati
     myPrint(f"Lancio {numeroLancio}: Storicizzati {status[0]}; {status[1]} -> {Dati.listaDati}", tipoMyPrint)
 
 
@@ -68,26 +69,26 @@ def produttore4(numeroLancio, tipoMyPrint):
 
 def binario(numero, tipoMyPrint):
     sistema = "Binario"
-    convetito = bin(numero)
-    convertitoSistema = int(convetito, 2)
-    logConversione(sistema, numero, convetito, convertitoSistema, tipoMyPrint)
-    return convetito, convertitoSistema
+    convertito = bin(numero)
+    convertitoSistema = int(convertito, 2)
+    logConversione(sistema, numero, convertito, convertitoSistema, tipoMyPrint)
+    return convertito, convertitoSistema
 
 
 def ottale(numero, tipoMyPrint):
     sistema = "Ottale"
-    convetito = oct(numero)
-    convertitoSistema = int(convetito, 8)
-    logConversione(sistema, numero, convetito, convertitoSistema, tipoMyPrint)
-    return convetito, convertitoSistema
+    convertito = oct(numero)
+    convertitoSistema = int(convertito, 8)
+    logConversione(sistema, numero, convertito, convertitoSistema, tipoMyPrint)
+    return convertito, convertitoSistema
 
 
 def esadecimale(numero, tipoMyPrint):
     sistema = "Esadecimale"
-    convetito = hex(numero)
-    convertitoSistema = int(convetito, 16)
-    logConversione(sistema, numero, convetito, convertitoSistema, tipoMyPrint)
-    return convetito, convertitoSistema
+    convertito = hex(numero)
+    convertitoSistema = int(convertito, 16)
+    logConversione(sistema, numero, convertito, convertitoSistema, tipoMyPrint)
+    return convertito, convertitoSistema
 
 
 def logConversione(sistema, numero, convertito, convertitoSistema, tipoMyPrint):

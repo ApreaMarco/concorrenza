@@ -39,6 +39,7 @@ def produttore3(numeroLancio, tipoMyPrint):
     finally:
         SemaforoDati.lckDati.release()
 
+    sleep(0.01)  # Forza lo scambio di contesto fra i due semafori, che non sono vincolati
     myPrint(f"{Dati.listaDati}", tipoMyPrint)
 
 
