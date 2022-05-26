@@ -5,7 +5,8 @@ from time import time
 def main():
     input("Premi un tasto qualsialsi")
     t0 = time()
-    tipoProduttore = [produttore1, produttore2, produttore3, produttore4]  # Produttori disponibili
+    tipoProduttore = [produttore1, produttore2, produttore3, produttore4,
+                      produttore5, produttore6]  # Produttori disponibili
     produttoreTest = tipoProduttore[0]  # Produttore scelto per il test
     tipoMyPrint = [1, 2, 3]  # Stampe disponibili
     myPrintTest = tipoMyPrint[0]  # Tipo di stampa scelto per il test

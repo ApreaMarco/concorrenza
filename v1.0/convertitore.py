@@ -15,6 +15,100 @@ class Dati:
     listaDati = [-1] * 10
 
 
+class DatiSync:
+    lckDati = RLock()  # Variabile statica di tipo reentrant Lock
+    listaDati = [-1] * 10
+
+    @staticmethod
+    def write(listaEsterna):
+        DatiSync.lckDati.acquire()
+
+        # DatiSync.listaDati = listaEsterna
+        """
+        Errore: DatiSync.listaDati diventa alias di listaEsterna,
+        poichè viene copiato solo l'indirizzo e non il contenuto (mutabile)
+        Soluzione: Bisogna quindi copiare elemento per elemento
+        """
+        for pos in range(len(listaEsterna)):
+            DatiSync.listaDati[pos] = listaEsterna[pos]
+            sleep(randint(0, 1) / 2)
+
+        DatiSync.lckDati.release()
+
+    @staticmethod
+    def read():
+        DatiSync.lckDati.acquire()
+        # nuova variabile su cui verrà copiato il contenuto listaDati, da ritornare all'esterno
+        listaCopia = [-1] * 10
+
+        for pos in range(len(DatiSync.listaDati)):
+            listaCopia[pos] = DatiSync.listaDati[pos]
+            sleep(randint(0, 1) / 2)
+
+        DatiSync.lckDati.release()
+
+        return listaCopia
+
+
+class DatiCoop:
+    lckDati = RLock()  # Variabile statica di tipo reentrant Lock
+    varCondPieno = Condition(lckDati)
+    varCondVuoto = Condition(lckDati)
+    pieno = False  # Stato di partenza non si può leggere
+    vuoto = True  # Stato di partenza si può scrivere
+    listaDati = [-1] * 10
+
+    @staticmethod
+    def write(listaEsterna):
+        DatiCoop.lckDati.acquire()
+
+        # DatiSync.listaDati = listaEsterna
+        """
+        Errore: DatiSync.listaDati diventa alias di listaEsterna,
+        poichè viene copiato solo l'indirizzo e non il contenuto (mutabile)
+        Soluzione: Bisogna quindi copiare elemento per elemento
+        """
+        while DatiCoop.pieno:
+            DatiCoop.varCondPieno.wait()
+
+        # Quando sono qui significa che la mia attesa è finita
+        # pieno vale false: posso scrivere
+        for pos in range(len(listaEsterna)):
+            DatiCoop.listaDati[pos] = listaEsterna[pos]
+            sleep(randint(0, 1) / 2)
+
+        DatiCoop.pieno = True
+        DatiCoop.vuoto = False
+
+        DatiCoop.varCondVuoto.notify()
+        DatiCoop.lckDati.release()
+
+    @staticmethod
+    def read():
+        DatiCoop.lckDati.acquire()
+        # nuova variabile su cui verrà copiato il contenuto listaDati, da ritornare all'esterno
+        listaCopia = [-1] * 10
+
+        while DatiCoop.vuoto:
+            DatiCoop.varCondVuoto.wait()
+
+        # Quando sono qui significa che la mia attesa è finita
+        # vuoto vale false: posso leggere
+        for pos in range(len(DatiCoop.listaDati)):
+            listaCopia[pos] = DatiCoop.listaDati[pos]
+            # imposto a -1 la lista statica in modo da renderla logicamente vuota
+            DatiCoop.listaDati[pos] = -1
+            sleep(randint(0, 1) / 2)
+
+        DatiCoop.pieno = False
+        DatiCoop.vuoto = True
+
+        DatiCoop.varCondPieno.notify()
+        DatiCoop.lckDati.release()
+
+        return listaCopia
+
+
 def produttore1(numeroLancio, tipoMyPrint):
     myPrint(f"Inizio Thread corrente: {current_thread().name}", tipoMyPrint)
     numero = randint(1, 1000)
@@ -50,6 +144,33 @@ def produttore4(numeroLancio, tipoMyPrint):
     finally:
         myPrint(f"{Dati.listaDati}", tipoMyPrint)
         SemaforoDati.lckDati.release()
+
+
+def produttore5(numeroLancio, tipoMyPrint):
+    listaEsterna = [numeroLancio] * 10
+    try:
+        DatiSync.write(listaEsterna)
+    finally:
+        myPrint(f"Write{numeroLancio}: {DatiSync.listaDati}", tipoMyPrint)
+
+
+def produttore6(numeroLancio, tipoMyPrint):
+    try:
+        produttore5(numeroLancio, -1)
+    finally:
+        listaEsterna = DatiSync.read()
+        myPrint(f"Read{numeroLancio}: {listaEsterna}", tipoMyPrint)
+
+
+def produttore(numeroLancio, tipoMyPrint):
+    listaEsterna = [numeroLancio] * 10
+    DatiCoop.write(listaEsterna)
+    myPrint(f"Write Produttore {numeroLancio}: {listaEsterna}", tipoMyPrint)
+
+
+def consumatore(numeroLancio, tipoMyPrint):
+    listaEsterna = DatiCoop.read()
+    myPrint(f"Read Consumatore {numeroLancio}: {listaEsterna}", tipoMyPrint)
 
 
 def binario(numero, tipoMyPrint):
